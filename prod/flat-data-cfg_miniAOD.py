@@ -66,7 +66,7 @@ process.GlobalTag.globaltag = 'GR_P_V56::All'
 
 #--------------------- Report and output ---------------------------
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.cerr.FwkReport.reportEvery = 5000
@@ -270,12 +270,15 @@ if runOnRECO:
 process.chs = cms.EDFilter('CandPtrSelector', src = cms.InputTag('packedPFCandidates'), cut = cms.string('fromPV'))
 
 from RecoJets.JetProducers.ak4GenJets_cfi import ak4GenJets
+process.slimmedGenJetsAK5 = ak4GenJets.clone(src = 'packedGenParticles', rParam = 0.5)
 process.slimmedGenJetsAK8 = ak4GenJets.clone(src = 'packedGenParticles', rParam = 0.8)
 
 # process.ak4PFJets.src = 'packedPFCandidates'
 # process.ak4PFJets.doAreaFastjet = True
 
+from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
 # process.ak4PFJetsCHS = process.ak4PFJetsCHS.clone(src = 'chs', doAreaFastjet = True) #boh ?
+process.ak5PFJetsCHS = ak4PFJetsCHS.clone(src = 'chs', doAreaFastjet = True, rParam = 0.5) #boh ?
 # process.ak8PFJetsCHS = process.ak4PFJetsCHS.clone(src = 'chs', doAreaFastjet = True, rParam = 0.8)
 # process.ca8PFJetsCHS = process.ca4PFJets.clone(src = 'chs', doAreaFastjet = True, rParam = 0.8)
 
@@ -311,20 +314,17 @@ process.slimmedGenJetsAK8 = ak4GenJets.clone(src = 'packedGenParticles', rParam 
 
 # process.cmsTopTagPFJetsCHS.src = 'chs'
 
-# from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
+from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
 # from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
 
-# addJetCollection(
-#     process,
-#     labelName = 'AK4PFCHS',
-#     jetSource = cms.InputTag('ak4PFJetsCHS'),
-#     algo = 'ak4',
-#     rParam = 0.4,
-#     jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
-#     trackSource = cms.InputTag('unpackedTracksAndVertices'),
-#     pvSource = cms.InputTag('unpackedTracksAndVertices'),
-#     btagDiscriminators = ['combinedSecondaryVertexBJetTags'],
-#     ) 
+addJetCollection(
+    process,
+    labelName = 'AK5PFCHS',
+    jetSource = cms.InputTag('ak5PFJetsCHS'),
+    algo = 'ak5',
+    rParam = 0.5,
+    jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
+    ) 
 
 # addJetCollection(
 #     process,
@@ -374,6 +374,22 @@ process.slimmedGenJetsAK8 = ak4GenJets.clone(src = 'packedGenParticles', rParam 
 # process.patJetsAK4PFCHS.addAssociatedTracks = False
 # process.patJetPartonMatchAK4PFCHS.matched='prunedGenParticles'
 # process.patJetCorrFactorsAK4PFCHS.primaryVertices = 'offlineSlimmedPrimaryVertices'
+
+process.patJetsAK5PFCHS.addDiscriminators   = False
+process.patJetsAK5PFCHS.addEfficiencies   = False
+process.patJetsAK5PFCHS.addGenJetMatch   = False
+process.patJetsAK5PFCHS.addJetCharge   = False
+process.patJetsAK5PFCHS.addBTagInfo    = False
+process.patJetsAK5PFCHS.addTagInfos    = False
+process.patJetsAK5PFCHS.getJetMCFlavour = False
+process.patJetsAK5PFCHS.addAssociatedTracks = False
+process.patJetsAK5PFCHS.addJetFlavourInfo = False
+process.patJetsAK5PFCHS.addPartonJetMatch = False
+process.patJetsAK5PFCHS.embedGenJetMatch = False
+process.patJetsAK5PFCHS.userData.userFloats.src = []
+process.patJetsAK5PFCHS.userData.userFunctionLabels = []
+process.patJetsAK5PFCHS.userData.userFunctions = []
+process.patJetCorrFactorsAK5PFCHS.primaryVertices = 'offlineSlimmedPrimaryVertices'
 
 # process.patJetsCA8PFCHS.addJetCharge   = False
 # process.patJetsCA8PFCHS.addBTagInfo    = False   #For some reason this has to be False
@@ -547,7 +563,7 @@ process.dijets     = cms.EDAnalyzer('DijetTreeProducer',
   jetsAK4Calo         = cms.InputTag(calo_collection),
   jetsAK4PFCluster    = cms.InputTag(cluster_collection), 
   jetsAK4PFCalo    = cms.InputTag(pfcalo_collection), 
-  jetsAK8             = cms.InputTag('slimmedJetsAK8'),     
+  jetsAK8             = cms.InputTag('patJetsAK5PFCHS'),     
   rho              = cms.InputTag('fixedGridRhoFastjetAll'),
   met              = cms.InputTag('slimmedMETs'),
   vtx              = cms.InputTag('offlineSlimmedPrimaryVertices'),
@@ -569,7 +585,7 @@ process.dijets     = cms.EDAnalyzer('DijetTreeProducer',
   # genJetsAK8         = cms.InputTag('ak8GenJets'),     
   # genJetsCA8         = cms.InputTag('ca8GenJets'),
   genJetsAK4             = cms.InputTag('slimmedGenJets'), 
-  genJetsAK8             = cms.InputTag('slimmedGenJetsAK8'),     
+  genJetsAK8             = cms.InputTag('slimmedGenJetsAK5'),     
 
 
   ## trigger ###################################
@@ -634,9 +650,9 @@ process.dijets     = cms.EDAnalyzer('DijetTreeProducer',
   L1corrAK4 = cms.FileInPath('CMSDIJET/DijetRootTreeMaker/data/Summer15_AK4/Summer15_V3_MC_L1FastJet_AK4PFchs.txt'),
   L2corrAK4 = cms.FileInPath('CMSDIJET/DijetRootTreeMaker/data/Summer15_AK4/Summer15_V3_MC_L2Relative_AK4PFchs.txt'),
   L3corrAK4 = cms.FileInPath('CMSDIJET/DijetRootTreeMaker/data/Summer15_AK4/Summer15_V3_MC_L3Absolute_AK4PFchs.txt'),
-  L1corrAK8 = cms.FileInPath('CMSDIJET/DijetRootTreeMaker/data/Summer15_AK4/Summer15_V3_MC_L1FastJet_AK8PFchs.txt'),
-  L2corrAK8 = cms.FileInPath('CMSDIJET/DijetRootTreeMaker/data/Summer15_AK4/Summer15_V3_MC_L2Relative_AK8PFchs.txt'),
-  L3corrAK8 = cms.FileInPath('CMSDIJET/DijetRootTreeMaker/data/Summer15_AK4/Summer15_V3_MC_L3Absolute_AK8PFchs.txt')
+  L1corrAK8 = cms.FileInPath('CMSDIJET/DijetRootTreeMaker/data/Summer15_AK4/Summer15_V3_MC_L1FastJet_AK4PFchs.txt'),
+  L2corrAK8 = cms.FileInPath('CMSDIJET/DijetRootTreeMaker/data/Summer15_AK4/Summer15_V3_MC_L2Relative_AK4PFchs.txt'),
+  L3corrAK8 = cms.FileInPath('CMSDIJET/DijetRootTreeMaker/data/Summer15_AK4/Summer15_V3_MC_L3Absolute_AK4PFchs.txt')
 )
 
 
@@ -662,6 +678,10 @@ if runOnRECO:
 #process.p +=                      process.chs
 
                      #process.slimmedGenJetsAK8 * #GENPAR REMOVED
+
+process.p +=                      process.ak5PFJetsCHS
+process.p +=                      process.patJetCorrFactorsAK5PFCHS
+process.p +=                      process.patJetsAK5PFCHS
                      
                      #process.ak4PFJetsCHS *
                      #process.ak4GenJets *
