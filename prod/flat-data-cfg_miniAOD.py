@@ -480,7 +480,8 @@ process.source = cms.Source("PoolSource",
     #fileNames = cms.untracked.vstring('file:/cmshome/santanas/CMS/data/Spring14drAODSIM__RSGravToJJ_kMpl01_M-1000_Tune4C_13TeV-pythia8__AODSIM__PU20bx25_POSTLS170_V5-v1__00000__0622C950-58E4-E311-A595-0025904B130A.root')
     #fileNames = cms.untracked.vstring('file:2CEB70D6-D918-E411-B814-003048F30422.root')    
     #fileNames = cms.untracked.vstring('file:miniAOD-data_test.root')    
-    fileNames = cms.untracked.vstring('/store/data/Run2015A/Jet/RECO/PromptReco-v1/000/246/960/00000/4CED9FE9-DB0B-E511-A069-02163E012432.root')
+    #fileNames = cms.untracked.vstring('/store/data/Run2015A/Jet/RECO/PromptReco-v1/000/246/960/00000/4CED9FE9-DB0B-E511-A069-02163E012432.root')
+    fileNames = cms.untracked.vstring('/store/data/Run2015A/Jet/RECO/PromptReco-v1/000/247/267/00000/109E9E0F-4F0E-E511-91F1-02163E014295.root')
 )
 
 # #Keep statements for valueMaps (link Reco::Jets to associated quantities)

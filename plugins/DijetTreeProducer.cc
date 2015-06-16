@@ -180,6 +180,7 @@ void DijetTreeProducer::beginJob()
   ptAK4_             = new std::vector<float>;
   jecAK4_            = new std::vector<float>;
   etaAK4_            = new std::vector<float>;
+  rapAK4_            = new std::vector<float>;
   phiAK4_            = new std::vector<float>;
   massAK4_           = new std::vector<float>;
   energyAK4_         = new std::vector<float>;
@@ -242,6 +243,7 @@ void DijetTreeProducer::beginJob()
   outTree_->Branch("jetPtAK4"                ,"vector<float>"     ,&ptAK4_);
   outTree_->Branch("jetJecAK4"               ,"vector<float>"     ,&jecAK4_);
   outTree_->Branch("jetEtaAK4"               ,"vector<float>"     ,&etaAK4_);
+  outTree_->Branch("jetRapAK4"               ,"vector<float>"     ,&rapAK4_);
   outTree_->Branch("jetPhiAK4"               ,"vector<float>"     ,&phiAK4_);
   outTree_->Branch("jetMassAK4"              ,"vector<float>"     ,&massAK4_);
   outTree_->Branch("jetEnergyAK4"            ,"vector<float>"     ,&energyAK4_);
@@ -300,6 +302,7 @@ void DijetTreeProducer::beginJob()
   ptAK8_             = new std::vector<float>;
   jecAK8_            = new std::vector<float>;
   etaAK8_            = new std::vector<float>;
+  rapAK8_            = new std::vector<float>;
   phiAK8_            = new std::vector<float>;
   massAK8_           = new std::vector<float>;
   energyAK8_         = new std::vector<float>;
@@ -331,6 +334,7 @@ void DijetTreeProducer::beginJob()
   outTree_->Branch("jetPtAK8"                ,"vector<float>"     ,&ptAK8_);
   outTree_->Branch("jetJecAK8"               ,"vector<float>"     ,&jecAK8_);
   outTree_->Branch("jetEtaAK8"               ,"vector<float>"     ,&etaAK8_);
+  outTree_->Branch("jetRapAK8"               ,"vector<float>"     ,&rapAK8_);
   outTree_->Branch("jetPhiAK8"               ,"vector<float>"     ,&phiAK8_);
   outTree_->Branch("jetMassAK8"              ,"vector<float>"     ,&massAK8_);
   outTree_->Branch("jetEnergyAK8"            ,"vector<float>"     ,&energyAK8_);
@@ -423,22 +427,26 @@ void DijetTreeProducer::beginJob()
   // energyGenCA8_         = new std::vector<float>;
   ptGenAK4_             = new std::vector<float>;
   etaGenAK4_            = new std::vector<float>;
+  rapGenAK4_            = new std::vector<float>;
   phiGenAK4_            = new std::vector<float>;
   massGenAK4_           = new std::vector<float>;
   energyGenAK4_         = new std::vector<float>;
   ptGenAK8_             = new std::vector<float>;
   etaGenAK8_            = new std::vector<float>;
+  rapGenAK8_            = new std::vector<float>;
   phiGenAK8_            = new std::vector<float>;
   massGenAK8_           = new std::vector<float>;
   energyGenAK8_         = new std::vector<float>;
 
   outTree_->Branch("jetPtGenAK4"                ,"vector<float>"     ,&ptGenAK4_);
   outTree_->Branch("jetEtaGenAK4"               ,"vector<float>"     ,&etaGenAK4_);
+  outTree_->Branch("jetRapGenAK4"               ,"vector<float>"     ,&rapGenAK4_);
   outTree_->Branch("jetPhiGenAK4"               ,"vector<float>"     ,&phiGenAK4_);
   outTree_->Branch("jetMassGenAK4"              ,"vector<float>"     ,&massGenAK4_);
   outTree_->Branch("jetEnergyGenAK4"            ,"vector<float>"     ,&energyGenAK4_);
   outTree_->Branch("jetPtGenAK8"                ,"vector<float>"     ,&ptGenAK8_);
   outTree_->Branch("jetEtaGenAK8"               ,"vector<float>"     ,&etaGenAK8_);
+  outTree_->Branch("jetRapGenAK8"               ,"vector<float>"     ,&rapGenAK8_);
   outTree_->Branch("jetPhiGenAK8"               ,"vector<float>"     ,&phiGenAK8_);
   outTree_->Branch("jetMassGenAK8"              ,"vector<float>"     ,&massGenAK8_);
   outTree_->Branch("jetEnergyGenAK8"            ,"vector<float>"     ,&energyGenAK8_);
@@ -478,6 +486,7 @@ void DijetTreeProducer::endJob()
   delete ptAK4_;
   delete jecAK4_;
   delete etaAK4_;
+  delete rapAK4_;
   delete phiAK4_;
   delete massAK4_;
   delete energyAK4_;
@@ -536,6 +545,7 @@ void DijetTreeProducer::endJob()
   delete ptAK8_;
   delete jecAK8_;
   delete etaAK8_;
+  delete rapAK8_;
   delete phiAK8_;
   delete massAK8_;
   delete energyAK8_;
@@ -888,6 +898,7 @@ void DijetTreeProducer::analyze(edm::Event const& iEvent, edm::EventSetup const&
         ptAK4_            ->push_back(pt);
         phiAK4_           ->push_back(ijet->phi());
         etaAK4_           ->push_back(ijet->eta());
+        rapAK4_           ->push_back(ijet->rapidity());
         massAK4_          ->push_back(ijet->correctedJet(0).mass()*jecFactorsAK4.at(*i));
         energyAK4_        ->push_back(ijet->correctedJet(0).energy()*jecFactorsAK4.at(*i));
         areaAK4_          ->push_back(ijet->jetArea());
@@ -1124,6 +1135,7 @@ void DijetTreeProducer::analyze(edm::Event const& iEvent, edm::EventSetup const&
         ptAK8_            ->push_back(pt);
         phiAK8_           ->push_back(ijet->phi());
         etaAK8_           ->push_back(ijet->eta());
+        rapAK8_           ->push_back(ijet->rapidity());
         massAK8_          ->push_back(ijet->correctedJet(0).mass()*jecFactorsAK8.at(*i));
         energyAK8_        ->push_back(ijet->correctedJet(0).energy()*jecFactorsAK8.at(*i));
         areaAK8_          ->push_back(ijet->jetArea());
@@ -1230,6 +1242,7 @@ void DijetTreeProducer::analyze(edm::Event const& iEvent, edm::EventSetup const&
 	  ptGenAK4_            ->push_back(pt);
 	  phiGenAK4_           ->push_back(ijet->phi());
 	  etaGenAK4_           ->push_back(ijet->eta());
+	  rapGenAK4_           ->push_back(ijet->rapidity());
 	  massGenAK4_          ->push_back(ijet->mass());
 	  energyGenAK4_        ->push_back(ijet->energy());
 	}
@@ -1248,6 +1261,7 @@ void DijetTreeProducer::analyze(edm::Event const& iEvent, edm::EventSetup const&
 	  ptGenAK8_            ->push_back(pt);
 	  phiGenAK8_           ->push_back(ijet->phi());
 	  etaGenAK8_           ->push_back(ijet->eta());
+	  rapGenAK8_           ->push_back(ijet->rapidity());
 	  massGenAK8_          ->push_back(ijet->mass());
 	  energyGenAK8_        ->push_back(ijet->energy());
 	}
@@ -1300,6 +1314,7 @@ void DijetTreeProducer::initialize()
   dPhijjAK4_         = -999;
   ptAK4_             ->clear();
   etaAK4_            ->clear();
+  rapAK4_            ->clear();
   phiAK4_            ->clear();
   massAK4_           ->clear();
   energyAK4_         ->clear();
@@ -1365,6 +1380,7 @@ void DijetTreeProducer::initialize()
   dPhijjAK8_         = -999;
   ptAK8_             ->clear();
   etaAK8_            ->clear();
+  rapAK8_            ->clear();
   phiAK8_            ->clear();
   massAK8_           ->clear();
   energyAK8_         ->clear();
@@ -1437,11 +1453,13 @@ void DijetTreeProducer::initialize()
   ptGenAK4_    ->clear();
   phiGenAK4_   ->clear();
   etaGenAK4_   ->clear();
+  rapGenAK4_   ->clear();
   massGenAK4_  ->clear();
   energyGenAK4_->clear();
   ptGenAK8_    ->clear();
   phiGenAK8_   ->clear();
   etaGenAK8_   ->clear();
+  rapGenAK8_   ->clear();
   massGenAK8_  ->clear();
   energyGenAK8_->clear();
   // ptGenCA8_    ->clear();
