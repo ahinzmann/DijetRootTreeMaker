@@ -45,9 +45,9 @@ process.load('RecoMET.METFilters.EcalDeadCellTriggerPrimitiveFilter_cfi')
 process.load('CommonTools/RecoAlgos/HBHENoiseFilter_cfi')
 
 ###################################### Run on AOD instead of MiniAOD? ########
-runOnAOD=False
+runOnAOD=True
 ###################################### Run on RECO instead of MiniAOD? ########
-runOnRECO=False
+runOnRECO=True
 if runOnRECO: runOnAOD=True
 
 ## ----------------- Global Tag ------------------
@@ -60,8 +60,8 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 #process.GlobalTag.globaltag = 'PLS170_V7AN1::All'
 #process.GlobalTag.globaltag = 'PHYS14_25_V1::All'
 #process.GlobalTag.globaltag = 'MCRUN2_74_V9A::All'
-#process.GlobalTag.globaltag = 'GR_P_V56::All'
-process.GlobalTag.globaltag = THISGLOBALTAG
+process.GlobalTag.globaltag = 'GR_P_V56::All'
+#process.GlobalTag.globaltag = THISGLOBALTAG
 
 
 #--------------------- Report and output ---------------------------
@@ -76,8 +76,8 @@ process.TFileService=cms.Service("TFileService",
                                  #fileName=cms.string('dijetTree_signal_M1000.root'),
                                  #fileName=cms.string('dijetTree_signal_M8000.root'),
                                  #fileName=cms.string('dijetTree_QstarToJJ_M_3000_PHYS14.root'),
-                                 #fileName=cms.string('dijetTree_dataTest.root'),
-                                 fileName=cms.string(THISROOTFILE),
+                                 fileName=cms.string('dijetTree_dataTest.root'),
+                                 #fileName=cms.string(THISROOTFILE),
                                  closeFileFast = cms.untracked.bool(True)
                                  )
 
@@ -106,6 +106,12 @@ process.out = cms.OutputModule('PoolOutputModule',
 #### NOT RUNNING OUTPUT MODULE ######                                                                                                                              
 # process.endpath = cms.EndPath(process.out)    
 
+if runOnRECO:
+### LOAD CONFIGURATION FOR PF RECONSTRUCTION
+  # Important to load up-to-date HCAL/ECAL servity flags from there
+  process.load("Configuration.StandardSequences.Reconstruction_Data_cff")
+
+
 ### RUN MINIAOD SEQUENCE
 if runOnAOD:
   from FWCore.ParameterSet.Utilities import convertToUnscheduled
@@ -114,11 +120,20 @@ if runOnAOD:
   from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeAllData 
   process = miniAOD_customizeAllData(process)
 
+
 if runOnRECO:
 ### RUN PFCLUSTERJETS
-  process.load("RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff")
-  process.load("RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi")
-  process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
+  from Configuration.StandardSequences.Reconstruction_Data_cff import *
+  process.particleFlowRecHitECAL=particleFlowRecHitECAL
+  process.particleFlowRecHitHBHE=particleFlowRecHitHBHE
+  process.particleFlowRecHitHF=particleFlowRecHitHF
+  process.particleFlowRecHitHO=particleFlowRecHitHO
+  process.particleFlowClusterECALUncorrected=particleFlowClusterECALUncorrected
+  process.particleFlowClusterECAL=particleFlowClusterECAL
+  process.particleFlowClusterHBHE=particleFlowClusterHBHE
+  process.particleFlowClusterHCAL=particleFlowClusterHCAL
+  process.particleFlowClusterHF=particleFlowClusterHF
+  process.particleFlowClusterHO=particleFlowClusterHO
   process.pfClusterRefsForJetsHCAL = cms.EDProducer("PFClusterRefCandidateProducer",
     src          = cms.InputTag('particleFlowClusterHCAL'),
     particleType = cms.string('pi+')
@@ -448,8 +463,8 @@ process.source = cms.Source("PoolSource",
     #fileNames = cms.untracked.vstring('file:/cmshome/santanas/CMS/data/Spring14miniaod__RSGravToJJ_kMpl01_M-1000_Tune4C_13TeV-pythia8__MINIAODSIM__PU20bx25_POSTLS170_V5-v1__00000__6AACD832-3707-E411-A167-001E672489D5.root')
     #fileNames = cms.untracked.vstring('file:/cmshome/santanas/CMS/data/Spring14drAODSIM__RSGravToJJ_kMpl01_M-1000_Tune4C_13TeV-pythia8__AODSIM__PU20bx25_POSTLS170_V5-v1__00000__0622C950-58E4-E311-A595-0025904B130A.root')
     #fileNames = cms.untracked.vstring('file:2CEB70D6-D918-E411-B814-003048F30422.root')    
-    fileNames = cms.untracked.vstring('file:miniAOD-data_test.root')    
-    #fileNames = cms.untracked.vstring('/store/data/Run2015A/Jet/AOD/PromptReco-v1/000/247/081/00000/804F6C9F-DB0C-E511-B0B6-02163E0143D9.root')
+    #fileNames = cms.untracked.vstring('file:miniAOD-data_test.root')    
+    fileNames = cms.untracked.vstring('/store/data/Run2015A/Jet/RECO/PromptReco-v1/000/246/960/00000/4CED9FE9-DB0B-E511-A069-02163E012432.root')
 )
 
 # #Keep statements for valueMaps (link Reco::Jets to associated quantities)
@@ -644,7 +659,7 @@ if runOnRECO:
                      
                      
                      #process.prunedGenParticlesDijet* #GENPAR REMOVED
-process.p +=                      process.chs
+#process.p +=                      process.chs
 
                      #process.slimmedGenJetsAK8 * #GENPAR REMOVED
                      

@@ -45,7 +45,7 @@ process.load('RecoMET.METFilters.EcalDeadCellTriggerPrimitiveFilter_cfi')
 process.load('CommonTools/RecoAlgos/HBHENoiseFilter_cfi')
 
 ###################################### Run on AOD instead of MiniAOD? ########
-runOnAOD=False
+runOnAOD=True
 ###################################### Run on RECO instead of MiniAOD? ########
 runOnRECO=False
 if runOnRECO: runOnAOD=True
@@ -59,8 +59,8 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 #process.GlobalTag.globaltag = 'POSTLS170_V7::All'
 #process.GlobalTag.globaltag = 'PLS170_V7AN1::All'
 #process.GlobalTag.globaltag = 'PHYS14_25_V1::All'
-process.GlobalTag.globaltag = THISGLOBALTAG
-#process.GlobalTag.globaltag = 'MCRUN2_74_V9::All'
+process.GlobalTag.globaltag = 'MCRUN2_74_V9::All'
+#process.GlobalTag.globaltag = THISGLOBALTAG
 
 
 #--------------------- Report and output ---------------------------
@@ -76,10 +76,10 @@ process.TFileService=cms.Service("TFileService",
                                  #fileName=cms.string('dijetTree_signal_M8000.root'),
                                  #fileName=cms.string('dijetTree_QstarToJJ_M_3000_PHYS14.root'),
                                  #fileName=cms.string('dijetTree_QstarToJJ_M_4000_RunIISpring15_mod.root'),
-                                 fileName=cms.string(THISROOTFILE),
                                  #fileName=cms.string('localtest_AK4cors_v2.root'),
                                  #fileName=cms.string("dijetTree_Qstar_MINIAODSIM.root"),
-                                 #fileName=cms.string("dijetTree_Qstar_AODSIM.root"),
+                                 fileName=cms.string("dijetTree_Qstar_AODSIM.root"),
+                                 #fileName=cms.string(THISROOTFILE),
                                  closeFileFast = cms.untracked.bool(True)
                                  )
 
@@ -109,19 +109,32 @@ process.out = cms.OutputModule('PoolOutputModule',
 # process.endpath = cms.EndPath(process.out)    
 
 
+if runOnRECO:
+### LOAD CONFIGURATION FOR PF RECONSTRUCTION
+  process.load("Configuration.StandardSequences.Reconstruction_Data_cff")
+
+
 ### RUN MINIAOD SEQUENCE
 if runOnAOD:
   from FWCore.ParameterSet.Utilities import convertToUnscheduled
   process=convertToUnscheduled(process)
-  process.load('Configuration.StandardSequences.PAT_cff')
+  process.load('Configuration.StandardSequences.PATMC_cff')
   from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeAllData 
   process = miniAOD_customizeAllData(process)
 
 if runOnRECO:
 ### RUN PFCLUSTERJETS
-  process.load("RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff")
-  process.load("RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi")
-  process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
+  from Configuration.StandardSequences.Reconstruction_cff import *
+  process.particleFlowRecHitECAL=particleFlowRecHitECAL
+  process.particleFlowRecHitHBHE=particleFlowRecHitHBHE
+  process.particleFlowRecHitHF=particleFlowRecHitHF
+  process.particleFlowRecHitHO=particleFlowRecHitHO
+  process.particleFlowClusterECALUncorrected=particleFlowClusterECALUncorrected
+  process.particleFlowClusterECAL=particleFlowClusterECAL
+  process.particleFlowClusterHBHE=particleFlowClusterHBHE
+  process.particleFlowClusterHCAL=particleFlowClusterHCAL
+  process.particleFlowClusterHF=particleFlowClusterHF
+  process.particleFlowClusterHO=particleFlowClusterHO
   process.pfClusterRefsForJetsHCAL = cms.EDProducer("PFClusterRefCandidateProducer",
     src          = cms.InputTag('particleFlowClusterHCAL'),
     particleType = cms.string('pi+')
@@ -168,8 +181,8 @@ if runOnRECO:
     debug = cms.untracked.bool(False),
     verbose = cms.untracked.bool(False),
     elementImporters = cms.VPSet(
-        cms.PSet(
-            source = cms.InputTag("particleFlowClusterECAL"),
+        cms.PSet(f
+            source = cms.InputTag("particleFlowClusterECAL"),g
             #source = cms.InputTag("particleFlowClusterECALUncorrected"), #we use uncorrected
             importerName = cms.string('GenericClusterImporter')
         ),
@@ -448,9 +461,9 @@ process.out.outputCommands.append("keep *_slimmedGenJetsAK8_*_*")
 process.source = cms.Source("PoolSource",
     #fileNames = cms.untracked.vstring('file:miniAOD_RSGravToJJ_kMpl01_M-8000.root')
     #fileNames = cms.untracked.vstring('file:2CEB70D6-D918-E411-B814-003048F30422.root')    
-    fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/j/juska/work/sample_spring15_rsgqq2000_25asympt_py8.root')
+    #fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/j/juska/work/sample_spring15_rsgqq2000_25asympt_py8.root')
     #fileNames = cms.untracked.vstring('file:QstarToJJ_M_4000_TuneCUETP8M1_13TeV_pythia8__AODSIM__Asympt50ns_MCRUN2_74_V9A-v1__70000__E0A71360-F6FE-E411-B342-00259029E84C.root')    
-    #fileNames = cms.untracked.vstring('/store/mc/RunIISpring15DR74/QstarToJJ_M_1000_TuneCUETP8M1_13TeV_pythia8/AODSIM/Asympt50ns_MCRUN2_74_V9A-v1/50000/00F85752-BCFB-E411-A29A-000F5327349C.root')
+    fileNames = cms.untracked.vstring('/store/mc/RunIISpring15DR74/QstarToJJ_M_1000_TuneCUETP8M1_13TeV_pythia8/AODSIM/Asympt50ns_MCRUN2_74_V9A-v1/50000/00F85752-BCFB-E411-A29A-000F5327349C.root')
 )
 
 # #Keep statements for valueMaps (link Reco::Jets to associated quantities)
